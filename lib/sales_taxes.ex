@@ -18,7 +18,7 @@ defmodule SalesTaxes do
     cond do
       "checkout" in formatted_data ->
         IO.puts "\nOUTPUT \nQuantity, Product, Price"
-        get_sales(SalesTaxes.Server.get_sales(pid))
+        output_sales_with_tax(SalesTaxes.Server.get_sales(pid))
         print_sales_taxes(SalesTaxes.Server.get_sales(pid))
 
       Enum.count(formatted_data) === 3 ->
@@ -52,19 +52,23 @@ defmodule SalesTaxes do
     end
   end
 
+  defp output_sales_with_tax(sales) do
+    sales
+    |> Enum.reverse
+    |> Enum.map(fn sale -> IO.puts "#{sale.quantity}, #{sale.product}, #{price_with_tax(sale.product, sale.price)}" end)
+  end
+
   defp print_sales_taxes(sales) do
     total_sales = Enum.map(sales, fn sale -> sale.price end)
     |> Enum.sum
-    |> Float.round(2)
 
     total_sales_with_tax = Enum.map(sales, fn sale -> price_with_tax(sale.product, sale.price) end)
     |> Enum.sum
-    |> Float.round(2)
 
     sales_tax = total_sales_with_tax - total_sales
     |> Float.round(2)
 
-    IO.puts "\nSales Taxes: #{sales_tax} \nTotal: #{total_sales}"
+    IO.puts "\nSales Taxes: #{sales_tax} \nTotal: #{total_sales_with_tax}"
   end
 
   defp price_with_tax(product, price) do
@@ -77,6 +81,7 @@ defmodule SalesTaxes do
     |> product_imported(price)
 
     price + product_tax_price + product_imported_price
+    |> Float.round(2)
   end
 
   defp product_tax(product_name_split, price) do
