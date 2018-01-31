@@ -1,21 +1,16 @@
 # SalesTaxes
 
-**TODO: Add description**
+simple app to calculate sale / taxes.
 
 ## Installation
+* git clone https://github.com/jetrotullroa/sales_taxes.git | git@github.com:jetrotullroa/sales_taxes.git
+* cd sales_taxes
+* mix deps.get
+* iex -S mix
+* SalesTaxes.init
+* Input your sales. Please see sample format below:
+  * 1, music cd, 14.99
+  * 5, chocolate bar, 0.85
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `sales_taxes` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:sales_taxes, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/sales_taxes](https://hexdocs.pm/sales_taxes).
-
+#### Required Software
+* Elixir V < 1.5
