@@ -1,19 +1,6 @@
 defmodule SalesTaxes do
 
-  @moduledoc """
-  Documentation for SalesTaxes.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> SalesTaxes.hello
-      :world
-
-  """
-
+  alias NimbleCSV.RFC4180, as: CSV
 
   def init do
     {:ok, pid} = SalesTaxes.Server.start_link
@@ -94,7 +81,7 @@ defmodule SalesTaxes do
 
   defp product_tax(product_name_split, price) do
     cond do
-      Enum.any?(product_name_split, fn word -> word in ["chocollate"] end) ->
+      Enum.any?(product_name_split, fn word -> word in non_taxable_products end) ->
         0.00
       true ->
         price * 0.10
@@ -108,6 +95,13 @@ defmodule SalesTaxes do
       true ->
         0.00
     end
+  end
+
+  defp non_taxable_products do
+    "non_taxable_products.csv"
+    |> File.read!
+    |> CSV.parse_string
+    |> Enum.map(fn [_id, product, _category] -> product end)
   end
 
 end
