@@ -7,30 +7,59 @@ defmodule SalesTaxes do
     loop(pid)
   end
 
-  def input_data do
-    IO.gets ""
-  end
+  @doc """
+  loop function that handle response base on the input.
 
+  Input should be "checkout" or a three valaue string that is separated by a comma(",").
+
+  If "checkout" returns the output of calculated sales taxes data.
+
+  If Three valaue string that is separated by a comma(",") loop through the input and save the state of data.
+
+  Else Any invalid input will return an "error" message
+  """
   def loop(pid) do
+    # set the table like iput
     IO.puts "\nINPUT \nQuantity, Product, Price"
+    # set the state of sales
     get_sales(SalesTaxes.Server.get_sales(pid))
+    # input data that automatically formatted
     formatted_data = input_data |> format_data
     cond do
+      # input is "checkout"
       "checkout" in formatted_data ->
         IO.puts "\nOUTPUT \nQuantity, Product, Price"
         output_sales_with_tax(SalesTaxes.Server.get_sales(pid))
         print_sales_taxes(SalesTaxes.Server.get_sales(pid))
 
+      # input is a normal 3 value string separated by commas(",")
       Enum.count(formatted_data) === 3 ->
         [quantity, product, price] = formatted_data
-        sale = %{quantity: String.to_integer(quantity), product: product, price: String.to_float(price)}
+        sale = %{quantity: String.to_integer(quantity), product: product, price: price |> String.to_float}
         SalesTaxes.Server.add_sale(pid, sale)
         loop(pid)
 
+      # input is not valid
       true ->
         IO.puts "error"
         loop(pid)
 
+    end
+  end
+
+  def input_data do
+    IO.gets ""
+  end
+
+
+  def get_sales(sales) do
+    cond do
+      Enum.count(sales) > 0 ->
+        sales
+        |> Enum.reverse
+        |> Enum.map(fn sale -> IO.puts "#{sale.quantity}, #{sale.product}, #{sale.price |> float_precision}" end)
+      true ->
+        IO.puts "no sales yet"
     end
   end
 
@@ -41,21 +70,10 @@ defmodule SalesTaxes do
     |> Enum.map(&(String.replace(&1, "\n", "")))
   end
 
-  defp get_sales(sales) do
-    cond do
-      Enum.count(sales) > 0 ->
-        sales
-        |> Enum.reverse
-        |> Enum.map(fn sale -> IO.puts "#{sale.quantity}, #{sale.product}, #{sale.price}" end)
-      true ->
-        IO.puts "no sales yet"
-    end
-  end
-
   defp output_sales_with_tax(sales) do
     sales
     |> Enum.reverse
-    |> Enum.map(fn sale -> IO.puts "#{sale.quantity}, #{sale.product}, #{price_with_tax(sale.product, sale.price)}" end)
+    |> Enum.map(fn sale -> IO.puts "#{sale.quantity}, #{sale.product}, #{price_with_tax(sale.product, sale.price) |> float_precision}" end)
   end
 
   defp print_sales_taxes(sales) do
@@ -65,10 +83,10 @@ defmodule SalesTaxes do
     total_sales_with_tax = Enum.map(sales, fn sale -> price_with_tax(sale.product, sale.price) end)
     |> Enum.sum
 
-    sales_tax = total_sales_with_tax - total_sales
-    |> Float.round(2)
 
-    IO.puts "\nSales Taxes: #{sales_tax} \nTotal: #{total_sales_with_tax}"
+    sales_tax = total_sales_with_tax - total_sales
+
+    IO.puts "\nSales Taxes: #{sales_tax |> float_precision} \nTotal: #{total_sales_with_tax |> float_precision}"
   end
 
   defp price_with_tax(product, price) do
@@ -107,6 +125,11 @@ defmodule SalesTaxes do
     |> File.read!
     |> CSV.parse_string
     |> Enum.map(fn [_id, product, _category] -> product end)
+  end
+
+  defp float_precision(num) do
+    num
+    |> :erlang.float_to_binary(decimals: 2)
   end
 
 end
