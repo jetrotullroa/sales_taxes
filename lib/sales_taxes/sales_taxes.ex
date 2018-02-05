@@ -30,7 +30,7 @@ defmodule SalesTaxes do
       "checkout" in formatted_data ->
         IO.puts "\nOUTPUT \nQuantity, Product, Price"
         output_sales_with_tax(SalesTaxes.Server.get_sales(pid))
-        print_sales_taxes(SalesTaxes.Server.get_sales(pid))
+        print_sales_taxes_output(SalesTaxes.Server.get_sales(pid))
 
       # input is a normal 3 value string separated by commas(",")
       Enum.count(formatted_data) === 3 ->
@@ -76,7 +76,7 @@ defmodule SalesTaxes do
     |> Enum.map(fn sale -> IO.puts "#{sale.quantity}, #{sale.product}, #{price_with_tax(sale.product, sale.price) |> float_precision}" end)
   end
 
-  defp print_sales_taxes(sales) do
+  defp print_sales_taxes_output(sales) do
     total_sales = Enum.map(sales, fn sale -> sale.price end)
     |> Enum.sum
 
@@ -94,6 +94,7 @@ defmodule SalesTaxes do
     |> String.split(" ")
     |> product_tax(price)
 
+
     product_imported_price = product
     |> String.split(" ")
     |> product_imported(price)
@@ -107,14 +108,18 @@ defmodule SalesTaxes do
       Enum.any?(product_name_split, fn word -> word in non_taxable_products end) ->
         0.00
       true ->
-        price * 0.10
+        # n%p / 100
+        10 * price / 100
+        |> round_tax_price
     end
   end
 
   defp product_imported(product_name_split, price) do
     cond do
       Enum.any?(product_name_split, fn word -> word in ["import", "imported"] end) ->
-        price * 0.05
+        # n%p / 100
+        5 * price / 100
+        |> round_tax_price
       true ->
         0.00
     end
@@ -132,4 +137,50 @@ defmodule SalesTaxes do
     |> :erlang.float_to_binary(decimals: 2)
   end
 
+  # round to nearest 0.05
+  # def round_tax_price(number) do
+  #   round_num = number
+  #   |> Float.round(1)
+  #
+  #   floor_num = number
+  #   |> Float.floor(1)
+  #
+  #   cond do
+  #     round_num == floor_num ->
+  #       round_num + 0.05
+  #     true ->
+  #       round_num
+  #   end
+  # end
+
+  def round_tax_price(number) do
+    # round to 2 decimal places
+    # get the number after decimal
+    # check if divisible by 5
+
+    [w, d] = number
+    |> Float.round(2)
+    |> float_precision
+    |> String.split(".")
+
+    {whole, _} = w |> Integer.parse
+    {decimal, _} = d |> Integer.parse
+
+    remainder = rem(decimal, 5)
+
+    cond do
+      # decimal is divisible by 5
+      remainder == 0 ->
+        "#{whole}.#{decimal}" |> String.to_float
+      # decimal rem is lesser than 3
+      remainder < 3 ->
+        new_remainder = decimal - remainder
+        "#{whole}.#{new_remainder}" |> String.to_float
+      # decimal rem is greater than 3    
+      true ->
+        new_remainder = decimal + (5 - remainder)
+        "#{whole}.#{new_remainder}" |> String.to_float
+    end
+
+  end
 end
