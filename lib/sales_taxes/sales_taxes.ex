@@ -166,19 +166,23 @@ defmodule SalesTaxes do
     {whole, _} = w |> Integer.parse
     {decimal, _} = d |> Integer.parse
 
-    remainder = rem(decimal, 5)
+    rem_by_five = rem(decimal, 5)
+    rem_by_ten = rem(decimal, 10)
 
     cond do
       # decimal is divisible by 5
-      remainder == 0 ->
+      rem_by_five == 0 ->
         "#{whole}.#{decimal}" |> String.to_float
-      # decimal rem is lesser than 3
-      remainder < 3 ->
-        new_remainder = decimal - remainder
+      rem_by_ten > 5 ->
+        new_remainder = decimal + (10 - rem_by_ten)
         "#{whole}.#{new_remainder}" |> String.to_float
-      # decimal rem is greater than 3    
+      # decimal rem_by_five is lesser than 3
+      rem_by_five < 3 ->
+        new_remainder = decimal - rem_by_five
+        "#{whole}.#{new_remainder}" |> String.to_float
+      # decimal rem_by_five is greater than 3
       true ->
-        new_remainder = decimal + (5 - remainder)
+        new_remainder = decimal + (5 - rem_by_five)
         "#{whole}.#{new_remainder}" |> String.to_float
     end
 
