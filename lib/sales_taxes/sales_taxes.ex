@@ -2,7 +2,11 @@ defmodule SalesTaxes do
 
   alias NimbleCSV.RFC4180, as: CSV
 
-  def init do
+
+  @doc """
+  start the process and pass to pid to loop function to manage state
+  """
+  def start do
     {:ok, pid} = SalesTaxes.Server.start_link
     loop(pid)
   end

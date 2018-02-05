@@ -7,7 +7,7 @@ simple app to calculate sale / taxes.
 * cd sales_taxes
 * mix deps.get
 * iex -S mix
-* SalesTaxes.init
+* SalesTaxes.start
 * Input your sales. Please see sample format below:
   * 1, music cd, 14.99
   * 5, chocolate bar, 0.85
