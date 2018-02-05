@@ -11,6 +11,7 @@ simple app to calculate sale / taxes.
 * Input your sales. Please see sample format below:
   * 1, music cd, 14.99
   * 5, chocolate bar, 0.85
+* Input "checkout" if you want to calculate the Sales Tax and Total Price.  
 
 #### Required Software
 * Elixir V < 1.5
