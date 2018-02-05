@@ -47,12 +47,12 @@ defmodule SalesTaxes do
     end
   end
 
-  def input_data do
+  defp input_data do
     IO.gets ""
   end
 
 
-  def get_sales(sales) do
+  defp get_sales(sales) do
     cond do
       Enum.count(sales) > 0 ->
         sales
@@ -137,23 +137,7 @@ defmodule SalesTaxes do
     |> :erlang.float_to_binary(decimals: 2)
   end
 
-  # round to nearest 0.05
-  # def round_tax_price(number) do
-  #   round_num = number
-  #   |> Float.round(1)
-  #
-  #   floor_num = number
-  #   |> Float.floor(1)
-  #
-  #   cond do
-  #     round_num == floor_num ->
-  #       round_num + 0.05
-  #     true ->
-  #       round_num
-  #   end
-  # end
-
-  def round_tax_price(number) do
+  defp round_tax_price(number) do
     # round to 2 decimal places
     # get the number after decimal
     # check if divisible by 5
